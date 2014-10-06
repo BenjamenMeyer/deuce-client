@@ -9,6 +9,7 @@ import time
 # import keystoneclient.client
 # What we have to do:
 import keystoneclient.v2_0.client as client_v2
+import keystoneclient.session as client_session
 
 import deuceclient.auth
 
@@ -39,7 +40,8 @@ class OpenStackAuthentication(deuceclient.auth.AuthenticationBase):
 
         auth_args = {
             'auth_url': self.authurl,
-            'region_name': self.datacenter
+            'region_name': self.datacenter,
+            'session': client_session.Session()
         }
 
         # Extract the User Information
@@ -69,10 +71,16 @@ class OpenStackAuthentication(deuceclient.auth.AuthenticationBase):
                 'Invalid auth_method ({0:}) for OpenStackAuthentication'
                 .format(self.authmethod))
 
+        log = logging.getLogger(__name__)
+        log.debug('Authentication Parameters: {0}'.format(auth_args))
+
         # What we want to do:
         # return keystoneclient.client.Client(**auth_args)
         # What we have to do:
-        return client_v2.Client(**auth_args)
+        auth_client = client_v2.Client(**auth_args)
+        auth_client.management_url = self.authurl
+        auth_client.authenticate()
+        return auth_client
 
     def GetToken(self, retry=5):
         """Retrieve a token from OpenStack Keystone
@@ -80,9 +88,10 @@ class OpenStackAuthentication(deuceclient.auth.AuthenticationBase):
         if self.__client is None:
             try:
                 self.__client = self.get_client()
-            except:
+            except Exception as ex:
                 raise deuceclient.auth.AuthenticationError(
-                    'Unable to retrieve the Authentication Client')
+                    'Unable to retrieve the Authentication Client {0}'
+                    .format(ex))
 
         try:
             self.__access = self.__client.get_raw_token_from_identity_service(

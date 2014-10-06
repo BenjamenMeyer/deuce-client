@@ -124,6 +124,17 @@ class FakeClient(object):
     def get_raw_token_from_identity_service(self, *args, **kwargs):
         return FakeAccess()
 
+    @property
+    def management_url(self):
+        pass
+
+    @management_url.setter
+    def management_url(self, url):
+        pass
+
+    def authenticate(self):
+        pass
+
 
 class OpenStackAuthTest(TestCase,
                         deuceclient.tests.test_auth.AuthenticationBaseTest):
@@ -214,8 +225,8 @@ class OpenStackAuthTest(TestCase,
 
         with mock.patch(mok_ky_gen_client) as keystone_mock,\
                 mock.patch(mok_ky_v2_client) as keystone_v2_client:
-            keystone_mock.return_value = True
-            keystone_v2_client.return_value = True
+            keystone_mock.return_value = FakeClient()
+            keystone_v2_client.return_value = FakeClient()
 
             authengine = self.create_authengine(userid=userid,
                                                 usertype=usertype,
@@ -244,8 +255,8 @@ class OpenStackAuthTest(TestCase,
         auth_method = 'password'
         with mock.patch(mok_ky_gen_client) as keystone_mock,\
                 mock.patch(mok_ky_v2_client) as keystone_v2_client:
-            keystone_mock.return_value = True
-            keystone_v2_client.return_value = True
+            keystone_mock.return_value = FakeClient()
+            keystone_v2_client.return_value = FakeClient()
 
             authengine = self.create_authengine(userid=username,
                                                 usertype=usertype,
@@ -274,8 +285,8 @@ class OpenStackAuthTest(TestCase,
         auth_method = 'token'
         with mock.patch(mok_ky_gen_client) as keystone_mock,\
                 mock.patch(mok_ky_v2_client) as keystone_v2_client:
-            keystone_mock.return_value = True
-            keystone_v2_client.return_value = True
+            keystone_mock.return_value = FakeClient()
+            keystone_v2_client.return_value = FakeClient()
 
             authengine = self.create_authengine(userid=tenantname,
                                                 usertype=usertype,
@@ -304,8 +315,8 @@ class OpenStackAuthTest(TestCase,
         auth_method = 'token'
         with mock.patch(mok_ky_gen_client) as keystone_mock,\
                 mock.patch(mok_ky_v2_client) as keystone_v2_client:
-            keystone_mock.return_value = True
-            keystone_v2_client.return_value = True
+            keystone_mock.return_value = FakeClient()
+            keystone_v2_client.return_value = FakeClient()
 
             authengine = self.create_authengine(userid=tenantid,
                                                 usertype=usertype,
