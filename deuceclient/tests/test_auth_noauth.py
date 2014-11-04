@@ -1,5 +1,5 @@
 """
-Deuce Client - NonAuth Authentication Tests
+Tests - Deuce Client - Auth - NonAuth Authentication
 """
 import datetime
 import random
@@ -52,7 +52,7 @@ class NonAuthAuthTests(TestCase,
 
     def test_expires(self):
         self.assertEqual(datetime.datetime.max,
-                         self.authengine.AuthExpirationTime())
+                         self.authengine.AuthExpirationTime)
 
     def test_tenantid(self):
         self.assertEqual(self._userid,

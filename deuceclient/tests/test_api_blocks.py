@@ -1,5 +1,5 @@
 """
-Testing - Deuce Client - API Blocks
+Tests - Deuce Client - API Blocks
 """
 from unittest import TestCase
 
@@ -9,10 +9,21 @@ import deuceclient.common.validation as val
 from deuceclient.tests import *
 
 
+class InvalidMetadataBlock(object):
+
+    def __init__(self):
+        self._block_type = 'metadata'
+        self.block_id = create_block()[0]
+
+    @property
+    def block_type(self):
+        return self._block_type
+
+
 class BlocksTest(TestCase):
 
     def setUp(self):
-        super(self.__class__, self).setUp()
+        super(BlocksTest, self).setUp()
 
         self.project_id = create_project_name()
         self.vault_id = create_vault_name()
@@ -81,6 +92,13 @@ class BlocksTest(TestCase):
 
         with self.assertRaises(TypeError):
             blocks[block.block_id] = 'what\'s up doc?'
+
+    def test_add_invalid_block_instance(self):
+        block = InvalidMetadataBlock()
+        blocks = api.Blocks(project_id=self.project_id,
+                            vault_id=self.vault_id)
+        with self.assertRaises(TypeError):
+            blocks[block.block_id] = block
 
     def test_repr(self):
         blocks = api.Blocks(project_id=self.project_id,
