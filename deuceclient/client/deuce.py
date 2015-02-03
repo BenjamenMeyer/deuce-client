@@ -292,6 +292,32 @@ class DeuceClient(Command):
                 'Failed to get Vault statistics. '
                 'Error ({0:}): {1:}'.format(res.status_code, res.text))
 
+    @validate(vault=VaultInstanceRule)
+    def VaultBlockStatusReset(self, vault):
+        """Reset the statuses of blocks belonging to a particular Vault
+
+        :param vault: vault to reset all blocks' statuses.
+
+        :returns: True on success
+        :raises: TypeError if vault is not a Vault object
+        :raises: RunTimeError on failure
+        """
+
+        url = api_v1.get_blocks_path(vault.vault_id)
+        self.ReInit(self.sslenabled, url)
+        self.__update_headers()
+        self.__log_request_data(fn='VaultBlockStatusReset')
+        res = requests.patch(self.Uri, headers=self.Headers)
+        self.__log_response_data(res, jsondata=False,
+                                 fn='Vault Block Status Reset')
+
+        if res.status_code == 204:
+            return True
+        else:
+            raise RuntimeError(
+                "Failed to Reset Vault's Block Statuses"
+                "Error ({0:}): {1:}".format(res.status_code, res.text))
+
     @validate(vault=VaultInstanceRule,
               marker=MetadataBlockIdRuleNoneOkay,
               limit=LimitRuleNoneOkay)
@@ -433,7 +459,7 @@ class DeuceClient(Command):
 
     @validate(vault=VaultInstanceRule,
               block_ids=MetadataBlockIdIterableRule)
-    def UploadBlocks(self, vault, block_ids):
+    def UploadBlocks(self, vault, block_ids, request_mapping=True):
         """Upload a series of blocks at the same time
 
         :param vault: vault to upload the blocks into
@@ -442,7 +468,16 @@ class DeuceClient(Command):
         :returns: True on success
         """
         url = api_v1.get_blocks_path(vault.vault_id)
-        self.ReInit(self.sslenabled, url)
+        query_args = {}
+        if request_mapping:
+            query_args = {
+                'mapping': request_mapping
+            }
+        else:
+            pass
+
+        ret_url = set_qs_on_url(url, query_args)
+        self.ReInit(self.sslenabled, ret_url)
         self.__update_headers()
         headers = {}
         headers.update(self.Headers)
@@ -459,15 +494,19 @@ class DeuceClient(Command):
         self.__log_request_data(fn='Upload Multiple Blocks - msgpack')
         res = requests.post(self.Uri, headers=headers, data=body)
         self.__log_response_data(res,
-                                 jsondata=True,
+                                 jsondata=False,
                                  fn='Upload Multiple Blocks - msgpack')
-        if res.status_code == 200:
+        if res.status_code == 201:
+            return True
+
+        elif res.status_code == 200:
             for block_id, storage_block_id in res.json().items():
                 self.log.info('Vault {0}: Block {1} maps to storage block {2}'
                               .format(vault.vault_id,
                                       block_id,
                                       storage_block_id))
             return True
+
         else:
             raise RuntimeError(
                 'Failed to upload blocks to Vault. '
@@ -495,7 +534,7 @@ class DeuceClient(Command):
             return True
         else:
             raise RuntimeError(
-                'Failed to delete Vault. '
+                'Failed to delete Block. '
                 'Error ({0:}): {1:}'.format(res.status_code, res.text))
 
     @validate(vault=VaultInstanceRule, block_ids=MetadataBlockIdIterableRule)
