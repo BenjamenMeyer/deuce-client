@@ -5,7 +5,7 @@ import datetime
 import json
 import requests
 import logging
-from urllib.parse import urlparse, parse_qs
+from six.moves.urllib.parse import urlparse, parse_qs
 
 import msgpack
 from stoplight import validate

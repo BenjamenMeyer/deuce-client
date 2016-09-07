@@ -16,7 +16,7 @@ class NonAuthAuthentication(deuceclient.auth.AuthenticationBase):
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(NonAuthAuthentication, self).__init__(*args, **kwargs)
         self._args = args
         self._kwargs = kwargs
         self._token = "not_applicable_token"

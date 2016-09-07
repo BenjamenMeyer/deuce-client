@@ -1,4 +1,4 @@
-import urllib.parse as parse
+import six.moves.urllib.parse as parse
 
 
 def set_qs_on_url(url, args={}):

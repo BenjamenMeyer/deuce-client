@@ -26,7 +26,7 @@ class OpenStackAuthentication(deuceclient.auth.AuthenticationBase):
             raise deuceclient.auth.AuthenticationError(
                 'Required Parameter, auth_url, not specified.')
 
-        super().__init__(userid=userid, usertype=usertype,
+        super(OpenStackAuthentication, self).__init__(userid=userid, usertype=usertype,
                          credentials=credentials, auth_method=auth_method,
                          datacenter=datacenter, auth_url=auth_url)
 
